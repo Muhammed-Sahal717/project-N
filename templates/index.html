@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JWT Learning Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #0f172a;
+        --panel: rgba(15, 23, 42, 0.86);
+        --panel-border: rgba(148, 163, 184, 0.22);
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-strong: #0ea5e9;
+        --danger: #fb7185;
+        --success: #34d399;
+        --input: rgba(15, 23, 42, 0.72);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), transparent 38%),
+          radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 32%),
+          linear-gradient(160deg, #020617 0%, #0f172a 55%, #111827 100%);
+      }
+
+      .wrap {
+        width: min(1100px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 56px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      .eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 4.6rem);
+        line-height: 0.95;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 70ch;
+        color: var(--muted);
+        font-size: 1.04rem;
+        line-height: 1.7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 24px 80px rgba(2, 6, 23, 0.44);
+        backdrop-filter: blur(18px);
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: 1.1rem;
+      }
+
+      .demo-note {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      input, button, textarea {
+        font: inherit;
+      }
+
+      input, textarea {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: var(--input);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 12px 14px;
+        outline: none;
+      }
+
+      input:focus, textarea:focus {
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+      }
+
+      .field + .field {
+        margin-top: 14px;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.16s ease, background 0.16s ease, opacity 0.16s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+        color: #082f49;
+      }
+
+      .secondary {
+        background: rgba(148, 163, 184, 0.16);
+        color: var(--text);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+      }
+
+      .status {
+        min-height: 1.3em;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.success {
+        color: var(--success);
+      }
+
+      textarea {
+        min-height: 240px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92rem;
+      }
+
+      .hint {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      @media (max-width: 880px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <p class="eyebrow">JWT learning demo</p>
+        <h1>See the full token flow in one small app.</h1>
+        <p>
+          This demo signs a JWT on login, stores it in the browser for the session,
+          and sends it to a protected endpoint so you can see verification succeed
+          or fail without extra tooling.
+        </p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>1. Login and get a token</h2>
+          <p class="demo-note">Demo credentials are <strong>demo / demo123</strong>. The token is shown below after a successful login.</p>
+          <form id="login-form">
+            <div class="field">
+              <label for="username">Username</label>
+              <input id="username" name="username" autocomplete="username" value="demo" />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" value="demo123" />
+            </div>
+            <div class="row">
+              <button class="primary" type="submit">Login</button>
+              <button class="secondary" type="button" id="clear-token">Clear token</button>
+            </div>
+          </form>
+          <div id="login-status" class="status"></div>
+          <div class="hint">The token is kept only in page memory for this learning demo.</div>
+        </article>
+
+        <article class="card">
+          <h2>2. Call the protected route</h2>
+          <div class="stack">
+            <div>
+              <label for="token">Current token</label>
+              <textarea id="token" placeholder="Login to see a JWT here"></textarea>
+            </div>
+            <div class="row">
+              <button class="primary" type="button" id="call-protected">Call protected endpoint</button>
+            </div>
+            <div id="protected-status" class="status"></div>
+            <div>
+              <label for="protected-response">Protected response</label>
+              <textarea id="protected-response" readonly placeholder="Protected API response appears here"></textarea>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
